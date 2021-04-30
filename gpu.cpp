@@ -34,13 +34,37 @@ uint32_t computeVertexID(VertexArray const&vao,uint32_t shaderInvocation)
     uint8_t*ind = (uint8_t*)vao.indexBuffer;
     return ind[shaderInvocation];
   }
-  
   return shaderInvocation;
 }
 
 
+/**
+ *  Sends  ctx.vao.vertexAttrib[0].bufferData to Invertex.atrrbutes[j]
+ * 
+ */
+void vertex_to_vertex_shader(InVertex &inVertex, GPUContext &ctx)
+{
+  for(uint32_t j = 0; j < maxAttributes; j++)
+  {
+
+    auto const &possition = ctx.vao.vertexAttrib[j];
+    if(!possition.bufferData)
+      continue;
+
+    if(possition.type == AttributeType::FLOAT)
+      inVertex.attributes[j].v1 = *(float*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
+    if(possition.type == AttributeType::FLOAT)
+      inVertex.attributes[j].v2 = *(glm::vec2*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
+    if(possition.type == AttributeType::FLOAT)
+      inVertex.attributes[j].v3 = *(glm::vec3*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
+    if(possition.type == AttributeType::FLOAT)
+      inVertex.attributes[j].v4 = *(glm::vec4*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
+  }
+}
+
 //! [drawTrianglesImpl]
-void drawTrianglesImpl(GPUContext &ctx,uint32_t nofVertices){
+void drawTrianglesImpl(GPUContext &ctx,uint32_t nofVertices)
+{
   (void)ctx;
   (void)nofVertices;
   /// \todo Tato funkce vykreslí trojúhelníky podle daného nastavení.<br>
@@ -48,16 +72,29 @@ void drawTrianglesImpl(GPUContext &ctx,uint32_t nofVertices){
   /// Parametr "nofVertices" obsahuje počet vrcholů, který by se měl vykreslit (3 pro jeden trojúhelník).<br>
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace.
 
+  InVertex  inVertex; // vrchol, co vstupuje do vertex shader
+  OutVertex outVertex;// vrchol, co leze ven z vertex shaderu 
 
+  //if(ctx.vao.vertexAttrib->type == AttributeType::FLOAT)
+  //{
+//  }  
+  
   for(int i = 0; i < nofVertices; i++)
   {
-    //smyčka přes vrcholy
-    InVertex  inVertex; // vrchol, co vstupuje do vertex shader
+  
+      //smyčka přes vrcholy
     inVertex.gl_VertexID = computeVertexID(ctx.vao, i );
 
-    OutVertex outVertex;// vrchol, co leze ven z vertex shaderu 
+    if (ctx.vao.vertexAttrib->type == AttributeType::FLOAT) 
+      vertex_to_vertex_shader(inVertex, ctx);
+
     ctx.prg.vertexShader(outVertex, inVertex, ctx.prg.uniforms);
+
+    
+
   }
+  //if()
+
 
 }
 //! [drawTrianglesImpl]
