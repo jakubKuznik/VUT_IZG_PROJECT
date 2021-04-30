@@ -46,18 +46,18 @@ void vertex_to_vertex_shader(InVertex &inVertex, GPUContext &ctx)
 {
   for(uint32_t j = 0; j < maxAttributes; j++)
   {
-
     auto const &possition = ctx.vao.vertexAttrib[j];
+    
     if(!possition.bufferData)
       continue;
 
     if(possition.type == AttributeType::FLOAT)
       inVertex.attributes[j].v1 = *(float*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
-    if(possition.type == AttributeType::FLOAT)
+    if(possition.type == AttributeType::VEC2)
       inVertex.attributes[j].v2 = *(glm::vec2*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
-    if(possition.type == AttributeType::FLOAT)
+    if(possition.type == AttributeType::VEC3)
       inVertex.attributes[j].v3 = *(glm::vec3*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
-    if(possition.type == AttributeType::FLOAT)
+    if(possition.type == AttributeType::VEC4)
       inVertex.attributes[j].v4 = *(glm::vec4*)(((uint8_t*)possition.bufferData) + possition.offset + possition.stride * inVertex.gl_VertexID);
   }
 }
